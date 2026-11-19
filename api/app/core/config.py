@@ -8,8 +8,7 @@ from qdrant_client import QdrantClient
 
 
 # api/.env
-API_DIR = Path(__file__).resolve().parents[2]
-ENV_FILE = API_DIR / ".env"
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
@@ -19,12 +18,13 @@ class Settings(BaseSettings):
 
     # App
     app_name: str = "Clause"
-    data_path: str = "data/shop_handbook.pdf"
+    data_path: str ="file/shop_handbook.pdf"
 
     # Chat model
     chat_provider: str = "ollama"
     chat_model: str = "gemma4:latest"
     chat_temperature: float = 0.1
+    chat_api_key: str = ""
 
     # Embeddings
     embed_provider: str = "ollama"
@@ -41,21 +41,22 @@ class Settings(BaseSettings):
 
     # Qdrant
     collection_name: str = "shop_handbook"
-    qdrant_path: str = "./qdrant_data"
+    qdrant_path: str = "./vector_stores"
     qdrant_url: str | None = None
 
     # Prompts
-    system_prompt: str = (
-        "You are a helpful Clause assistant. "
-        "Answer only from the provided context. "
-        "If the answer is not in the context, say you don't know."
-    )
+    system_prompt_version: str = "v1"
+    # system_prompt: str = (
+    #     "You are a helpful Clause assistant. "
+    #     "Answer only from the provided context. "
+    #     "If the answer is not in the context, say you don't know."
+    # )
+
 
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
 
 def get_embeddings(settings: Settings) -> Embeddings:
     return init_embeddings(
@@ -63,11 +64,5 @@ def get_embeddings(settings: Settings) -> Embeddings:
         provider=settings.embed_provider,
     )
 
-
 def get_qdrant_client(settings: Settings) -> QdrantClient:
-    if settings.qdrant_url:
-        return QdrantClient(url=settings.qdrant_url)
-    path = Path(settings.qdrant_path)
-    if not path.is_absolute():
-        path = API_DIR / path
-    return QdrantClient(path=str(path))
+    return QdrantClient(path=settings.qdrant_path)

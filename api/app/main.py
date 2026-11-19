@@ -1,31 +1,33 @@
 from contextlib import asynccontextmanager
-
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel, StringConstraints
+
 from app.services.chat import RAGService, Answer
 
+
 @asynccontextmanager
-async def lifespan(app=FastAPI):
+async def lifespan(app: FastAPI):
     app.state.rag = RAGService()
     yield
     app.state.rag.close()
-app = FastAPI(title="Clause AI APIs" , lifespan=lifespan)
+
+app = FastAPI(title="Clause AI APIs", lifespan=lifespan)
 
 class AskQuestion(BaseModel):
     question: Annotated[
-        str, StringConstraints (strip_whitespace=True,   min_length=1, max_length=2000)
-        ]
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)
+    ]
 
-@app.post(path="/ask")
-def ask_question(request: AskQuestion) -> Answer:
-    # Implementation for asking a question
-    pass
-
-@app.get(path="/")
-def health() -> dict[str, str]:
+@app.get("/")
+def health():
     return {"status": "ok"}
-@app.post(path="/ask", response_model=Answer)
-def ask_query(body: AskQuestion, req: Request) -> Any:
+
+@app.post("/ask", response_model=Answer)
+def ask_query(body: AskQuestion, req: Request):
     return req.app.state.rag.ask(body.question)
+
+
+# cd api
+# uv run fastapi dev app/main.py
