@@ -12,5 +12,5 @@ def get_chat_model(settings:Settings)->BaseChatModel:
         )
 
 
-def get_fallback_model()->None:
+def get_fallback_model(settings:Settings)->None:
     pass

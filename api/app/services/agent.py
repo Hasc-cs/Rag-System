@@ -25,6 +25,7 @@ from app.prompt.loader import get_prompt
 from app.llm.models import get_chat_model
 from app.rag.vector_store import get_vector_store
 from app.tools.knowledge.handbook import Source, file_search
+from app.middleware.stack import default_stack
 
 
 class Answer(BaseModel):
@@ -44,6 +45,8 @@ class ClauseAgent:
                 name="support/system",
                 version=self.settings.system_prompt_version,
             ),
+             middleware=default_stack(self.settings),
+            checkpointer=checkpointer
         )
 
     def ask(self, question: str) -> Answer:

@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     #     "Answer only from the provided context. "
     #     "If the answer is not in the context, say you don't know."
     # )
+    #agent limit
+    max_model_call: int = 5
+    max_tool_call: int = 3
 
 
 
